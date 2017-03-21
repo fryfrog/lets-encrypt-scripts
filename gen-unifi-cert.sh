@@ -22,7 +22,7 @@ done
 
 
 
-# Location of LetsEncrypt binary we use or let autodetect figure it out
+# Location of LetsEncrypt binary we use.  Leave unset if you want to let it find automatically
 #LEBINARY="/usr/src/letsencrypt/certbot-auto"
 
 DEFAULTLEBINARY="/usr/bin/certbot /usr/bin/letsencrypt /usr/sbin/certbot

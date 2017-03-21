@@ -29,7 +29,7 @@ PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 PROXYAUTH="--standalone --standalone-supported-challenges http-01 --http-01-port 9999"
 
-# Location of LetsEncrypt binary we use
+# Location of LetsEncrypt binary we use.  Leave unset if you want to let it find automatically
 #LEBINARY="/usr/src/letsencrypt/certbot-auto"
 
 DEFAULTLEBINARY="/usr/bin/certbot /usr/bin/letsencrypt /usr/sbin/certbot
