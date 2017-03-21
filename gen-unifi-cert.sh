@@ -2,8 +2,8 @@
 # Modified script from here: https://github.com/FarsetLabs/letsencrypt-helper-scripts/blob/master/letsencrypt-unifi.sh
 # Modified by: Brielle Bruns <bruns@2mbit.com>
 # Download URL: https://source.sosdg.org/brielle/lets-encrypt-scripts
-# Version: 1.2
-# Last Changed: 03/24/2016
+# Version: 1.3
+# Last Changed: 03/21/2017
 # 02/02/2016: Fixed some errors with key export/import, removed lame docker requirements
 # 02/27/2016: More verbose progress report
 # 03/08/2016: Add renew option, reformat code, command line options
@@ -20,8 +20,27 @@ while getopts "ird:e:" opt; do
     esac
 done
 
-# Location of LetsEncrypt binary we use
-LEBINARY="/usr/src/letsencrypt/certbot-auto"
+
+
+# Location of LetsEncrypt binary we use or let autodetect figure it out
+#LEBINARY="/usr/src/letsencrypt/certbot-auto"
+
+DEFAULTLEBINARY="/usr/bin/certbot /usr/bin/letsencrypt /usr/sbin/certbot
+	/usr/sbin/letsencrypt /usr/local/bin/certbot /usr/local/sbin/certbot
+	/usr/local/bin/letsencrypt /usr/local/sbin/letsencrypt
+	/usr/src/letsencrypt/certbot-auto /usr/src/letsencrypt/letsencrypt-auto
+	/usr/src/certbot/certbot-auto /usr/src/certbot/letsencrypt-auto
+	/usr/src/certbot-master/certbot-auto /usr/src/certbot-master/letsencrypt-auto
+
+if [[ ! -v LEBINARY ]]; then
+	for $i in ${DEFAULTLEBINARY};
+		if [[ -x ${i} ]]; then
+			LEBINARY=${i}
+			break
+		fi
+	done
+fi
+		
 
 # Command line options depending on New or Renew.
 NEWCERT="--renew-by-default certonly"
