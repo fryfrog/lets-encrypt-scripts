@@ -36,6 +36,7 @@ if [[ ! -v LEBINARY ]]; then
 	for i in ${DEFAULTLEBINARY}; do
 		if [[ -x ${i} ]]; then
 			LEBINARY=${i}
+			echo "Found LetsEncrypt/Certbot binary at ${LEBINARY}"
 			break
 		fi
 	done

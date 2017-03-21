@@ -30,7 +30,25 @@ PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 PROXYAUTH="--standalone --standalone-supported-challenges http-01 --http-01-port 9999"
 
 # Location of LetsEncrypt binary we use
-LEBINARY="/usr/src/letsencrypt/certbot-auto"
+#LEBINARY="/usr/src/letsencrypt/certbot-auto"
+
+DEFAULTLEBINARY="/usr/bin/certbot /usr/bin/letsencrypt /usr/sbin/certbot
+	/usr/sbin/letsencrypt /usr/local/bin/certbot /usr/local/sbin/certbot
+	/usr/local/bin/letsencrypt /usr/local/sbin/letsencrypt
+	/usr/src/letsencrypt/certbot-auto /usr/src/letsencrypt/letsencrypt-auto
+	/usr/src/certbot/certbot-auto /usr/src/certbot/letsencrypt-auto
+	/usr/src/certbot-master/certbot-auto /usr/src/certbot-master/letsencrypt-auto"
+
+if [[ ! -v LEBINARY ]]; then
+	for i in ${DEFAULTLEBINARY}; do
+		if [[ -x ${i} ]]; then
+			LEBINARY=${i}
+			echo "Found LetsEncrypt/Certbot binary at ${LEBINARY}"
+			break
+		fi
+	done
+fi
+
 
 if [[ ! -x ${LEBINARY} ]]; then
 	echo "Error: LetsEncrypt binary not found in ${LEBINARY} !"
