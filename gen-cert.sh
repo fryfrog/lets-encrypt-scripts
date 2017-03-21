@@ -27,7 +27,7 @@ PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 #	Original proxy idea from:
 #	http://evolvedigital.co.uk/how-to-get-letsencrypt-working-with-ispconfig-3/
 
-PROXYAUTH="--standalone --standalone-supported-challenges http-01 --http-01-port 9999"
+PROXYAUTH="--standalone --preferred-challenges http-01 --http-01-port 9999"
 
 # Location of LetsEncrypt binary we use.  Leave unset if you want to let it find automatically
 #LEBINARY="/usr/src/letsencrypt/certbot-auto"
