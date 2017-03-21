@@ -30,10 +30,10 @@ DEFAULTLEBINARY="/usr/bin/certbot /usr/bin/letsencrypt /usr/sbin/certbot
 	/usr/local/bin/letsencrypt /usr/local/sbin/letsencrypt
 	/usr/src/letsencrypt/certbot-auto /usr/src/letsencrypt/letsencrypt-auto
 	/usr/src/certbot/certbot-auto /usr/src/certbot/letsencrypt-auto
-	/usr/src/certbot-master/certbot-auto /usr/src/certbot-master/letsencrypt-auto
+	/usr/src/certbot-master/certbot-auto /usr/src/certbot-master/letsencrypt-auto"
 
 if [[ ! -v LEBINARY ]]; then
-	for $i in ${DEFAULTLEBINARY};
+	for i in ${DEFAULTLEBINARY}; do
 		if [[ -x ${i} ]]; then
 			LEBINARY=${i}
 			break
