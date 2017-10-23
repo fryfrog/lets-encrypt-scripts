@@ -2,12 +2,13 @@
 # Modified script from here: https://github.com/FarsetLabs/letsencrypt-helper-scripts/blob/master/letsencrypt-unifi.sh
 # Modified by: Brielle Bruns <bruns@2mbit.com>
 # Download URL: https://source.sosdg.org/brielle/lets-encrypt-scripts
-# Version: 1.3
-# Last Changed: 03/21/2017
+# Version: 1.4
+# Last Changed: 10/23/2017
 # 02/02/2016: Fixed some errors with key export/import, removed lame docker requirements
 # 02/27/2016: More verbose progress report
 # 03/08/2016: Add renew option, reformat code, command line options
 # 03/24/2016: More sanity checking, embedding cert
+# 10/23/2017: Apparently don't need the ace.jar parts, so disable them
 
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -95,11 +96,11 @@ if `md5sum -c /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5 &>/dev/null`; the
 	exit 0
 else
 	TEMPFILE=$(mktemp)
-	CERTTEMPFILE=$(mktemp)
+	CATEMPFILE=$(mktemp)
 
 	# Identrust cross-signed CA cert needed by the java keystore for import.
 	# Can get original here: https://www.identrust.com/certificates/trustid/root-download-x3.html
-	cat > ${CERTTEMPFILE} <<'_EOF'
+	cat > "${CATEMPFILE}" <<'_EOF'
 -----BEGIN CERTIFICATE-----
 MIIDSjCCAjKgAwIBAgIQRK+wgNajJ7qJMDmGLvhAazANBgkqhkiG9w0BAQUFADA/
 MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT
@@ -125,11 +126,12 @@ _EOF
 	echo "Cert has changed, updating controller..."
 	md5sum /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem > /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5 
 	echo "Using openssl to prepare certificate..."
+	cat /etc/letsencrypt/live/${MAINDOMAIN}/chain.pem >> "${CATEMPFILE}"
 	openssl pkcs12 -export  -passout pass:aircontrolenterprise \
     	-in /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem \
     	-inkey /etc/letsencrypt/live/${MAINDOMAIN}/privkey.pem \
-    	-out ${TEMPFILE} -name unifi \
-    	-CAfile /etc/letsencrypt/live/${MAINDOMAIN}/chain.pem -caname root
+    	-out "${TEMPFILE}" -name unifi \
+    	-CAfile "${CATEMPFILE}" -caname root
 	echo "Stopping Unifi controller..."
 	service unifi stop
 	echo "Removing existing certificate from Unifi protected keystore..."
@@ -140,16 +142,10 @@ _EOF
 		-deststorepass aircontrolenterprise \
 		-destkeypass aircontrolenterprise \
     	-destkeystore /usr/lib/unifi/data/keystore \
-    	-srckeystore ${TEMPFILE} -srcstoretype PKCS12 \
+    	-srckeystore "${TEMPFILE}" -srcstoretype PKCS12 \
     	-srcstorepass aircontrolenterprise \
     	-alias unifi
-	rm -f ${TEMPFILE}
-	echo "Importing cert into Unifi database..."
-	java -jar /usr/lib/unifi/lib/ace.jar import_cert \
-    	/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem \
-    	/etc/letsencrypt/live/${MAINDOMAIN}/chain.pem \
-    	${CERTTEMPFILE}
-    rm -f ${CERTTEMPFILE}
+	rm -f "${TEMPFILE}" "${CATEMPFILE}"
 	echo "Starting Unifi controller..."
 	service unifi start
 	echo "Done!"
