@@ -2,13 +2,14 @@
 # Modified script from here: https://github.com/FarsetLabs/letsencrypt-helper-scripts/blob/master/letsencrypt-unifi.sh
 # Modified by: Brielle Bruns <bruns@2mbit.com>
 # Download URL: https://source.sosdg.org/brielle/lets-encrypt-scripts
-# Version: 1.4
-# Last Changed: 10/23/2017
+# Version: 1.5
+# Last Changed: 02/04/2018
 # 02/02/2016: Fixed some errors with key export/import, removed lame docker requirements
 # 02/27/2016: More verbose progress report
 # 03/08/2016: Add renew option, reformat code, command line options
 # 03/24/2016: More sanity checking, embedding cert
 # 10/23/2017: Apparently don't need the ace.jar parts, so disable them
+# 02/04/2018: LE disabled tls-sni-01, so switch to just tls-sni, as certbot 0.22 and later automatically fall back to http/80 for auth
 
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -87,7 +88,7 @@ if [[ ${onlyinsert} != "yes" ]]; then
 	${LEBINARY} \
 		--server https://acme-v01.api.letsencrypt.org/directory \
     	--agree-tos \
-		--standalone --preferred-challenges tls-sni-01 \
+		--standalone --preferred-challenges tls-sni \
     	${LEOPTIONS}
 fi    
 
