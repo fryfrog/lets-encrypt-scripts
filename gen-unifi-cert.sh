@@ -13,12 +13,22 @@
 
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-while getopts "ird:e:" opt; do
+function usage() {
+	echo "Usage: $0 -d <domain> [-e <email>] [-r] [-i]"
+	echo "  -d <domain>: The domain name to use."
+	echo "  -e <email>: Email address to use for certificate."
+	echo "  -r: Renew domain."
+	echo "  -i: Insert only, use to force insertion of certificate."
+}
+
+while getopts "hird:e:" opt; do
     case $opt in
     i) onlyinsert="yes";;
     r) renew="yes";;
     d) domains+=("$OPTARG");;
     e) email="$OPTARG";;
+    h) usage
+       exit;;
     esac
 done
 
@@ -74,6 +84,7 @@ MAINDOMAIN=${domains[0]}
 
 if [[ -z ${MAINDOMAIN} ]]; then
 	echo "Error: At least one -d argument is required"
+	usage
 	exit 1
 fi
 
