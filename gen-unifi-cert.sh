@@ -18,7 +18,7 @@ while getopts "ird:e:" opt; do
     i) onlyinsert="yes";;
     r) renew="yes";;
     d) domains+=("$OPTARG");;
-    e) email=("$OPTARG");;
+    e) email="$OPTARG";;
     esac
 done
 
@@ -78,21 +78,18 @@ if [[ -z ${MAINDOMAIN} ]]; then
 fi
 
 if [[ ${renew} == "yes" ]]; then
-	LEOPTIONS=${RENEWCERT}
+	LEOPTIONS="${RENEWCERT}"
 else
 	LEOPTIONS="${email} ${DOMAINS} ${NEWCERT}"
 fi
 
 if [[ ${onlyinsert} != "yes" ]]; then
 	echo "Firing up standalone authenticator on TCP port 443 and requesting cert..."
-	${LEBINARY} \
-		--server https://acme-v01.api.letsencrypt.org/directory \
-    	--agree-tos \
-		--standalone --preferred-challenges tls-sni \
-    	${LEOPTIONS}
-fi    
+	${LEBINARY} --server https://acme-v01.api.letsencrypt.org/directory \
+    	--agree-tos --standalone --preferred-challenges tls-sni ${LEOPTIONS}
+fi
 
-if `md5sum -c /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5 &>/dev/null`; then
+if md5sum -c "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5" &>/dev/null; then
 	echo "Cert has not changed, not updating controller."
 	exit 0
 else
@@ -125,12 +122,12 @@ Ob8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ
 _EOF
 
 	echo "Cert has changed, updating controller..."
-	md5sum /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem > /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5 
+	md5sum "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem" > "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5"
 	echo "Using openssl to prepare certificate..."
-	cat /etc/letsencrypt/live/${MAINDOMAIN}/chain.pem >> "${CATEMPFILE}"
+	cat "/etc/letsencrypt/live/${MAINDOMAIN}/chain.pem" >> "${CATEMPFILE}"
 	openssl pkcs12 -export  -passout pass:aircontrolenterprise \
-    	-in /etc/letsencrypt/live/${MAINDOMAIN}/cert.pem \
-    	-inkey /etc/letsencrypt/live/${MAINDOMAIN}/privkey.pem \
+    	-in "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem" \
+    	-inkey "/etc/letsencrypt/live/${MAINDOMAIN}/privkey.pem" \
     	-out "${TEMPFILE}" -name unifi \
     	-CAfile "${CATEMPFILE}" -caname root
 	echo "Stopping Unifi controller..."
