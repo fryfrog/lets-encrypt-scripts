@@ -59,6 +59,7 @@ fi
 NEWCERT="--renew-by-default certonly"
 RENEWCERT="-n renew"
 
+# Check for required binaries
 if [[ ! -x ${LEBINARY} ]]; then
 	echo "Error: LetsEncrypt binary not found in ${LEBINARY} !"
 	echo "You'll need to do one of the following:"
@@ -68,6 +69,15 @@ if [[ ! -x ${LEBINARY} ]]; then
 	exit 1
 fi
 
+if [[ ! -x $( which keytool ) ]]; then
+	echo "Error: Java keytool binary not found."
+	exit 1
+fi
+
+if [[ ! -x $( which openssl ) ]]; then
+	echo "Error: OpenSSL binary not found."
+	exit 1
+fi
 
 if [[ ! -z ${email} ]]; then
 	email="--email ${email}"
