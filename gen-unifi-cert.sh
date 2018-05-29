@@ -100,10 +100,11 @@ if [[ ${onlyinsert} != "yes" ]]; then
     	--agree-tos --standalone --preferred-challenges tls-sni ${LEOPTIONS}
 fi
 
-if md5sum -c "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5" &>/dev/null; then
+if [[ ${onlyinsert} != "yes" ]] && md5sum -c "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5" &>/dev/null; then
 	echo "Cert has not changed, not updating controller."
 	exit 0
 else
+	echo "Cert has changed or -i option was used, updating controller..."
 	TEMPFILE=$(mktemp)
 	CATEMPFILE=$(mktemp)
 
@@ -132,7 +133,6 @@ Ob8VZRzI9neWagqNdwvYkQsEjgfbKbYK7p2CNTUQ
 -----END CERTIFICATE-----
 _EOF
 
-	echo "Cert has changed, updating controller..."
 	md5sum "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem" > "/etc/letsencrypt/live/${MAINDOMAIN}/cert.pem.md5"
 	echo "Using openssl to prepare certificate..."
 	cat "/etc/letsencrypt/live/${MAINDOMAIN}/chain.pem" >> "${CATEMPFILE}"
