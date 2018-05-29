@@ -11,6 +11,9 @@
 # 10/23/2017: Apparently don't need the ace.jar parts, so disable them
 # 02/04/2018: LE disabled tls-sni-01, so switch to just tls-sni, as certbot 0.22 and later automatically fall back to http/80 for auth
 
+# Location of LetsEncrypt binary we use.  Leave unset if you want to let it find automatically
+#LEBINARY="/usr/src/letsencrypt/certbot-auto"
+
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 function usage() {
@@ -32,11 +35,6 @@ while getopts "hird:e:" opt; do
     esac
 done
 
-
-
-# Location of LetsEncrypt binary we use.  Leave unset if you want to let it find automatically
-#LEBINARY="/usr/src/letsencrypt/certbot-auto"
-
 DEFAULTLEBINARY="/usr/bin/certbot /usr/bin/letsencrypt /usr/sbin/certbot
 	/usr/sbin/letsencrypt /usr/local/bin/certbot /usr/local/sbin/certbot
 	/usr/local/bin/letsencrypt /usr/local/sbin/letsencrypt
@@ -53,7 +51,6 @@ if [[ ! -v LEBINARY ]]; then
 		fi
 	done
 fi
-		
 
 # Command line options depending on New or Renew.
 NEWCERT="--renew-by-default certonly"
@@ -151,11 +148,14 @@ _EOF
     	-inkey "/etc/letsencrypt/live/${MAINDOMAIN}/privkey.pem" \
     	-out "${TEMPFILE}" -name unifi \
     	-CAfile "${CATEMPFILE}" -caname root
+
 	echo "Stopping Unifi controller..."
 	service unifi stop
+
 	echo "Removing existing certificate from Unifi protected keystore..."
 	keytool -delete -alias unifi -keystore /usr/lib/unifi/data/keystore \
 		-deststorepass aircontrolenterprise
+
 	echo "Inserting certificate into Unifi keystore..."
 	keytool -trustcacerts -importkeystore \
 		-deststorepass aircontrolenterprise \
@@ -165,7 +165,9 @@ _EOF
     	-srcstorepass aircontrolenterprise \
     	-alias unifi
 	rm -f "${TEMPFILE}" "${CATEMPFILE}"
+
 	echo "Starting Unifi controller..."
 	service unifi start
+
 	echo "Done!"
 fi
